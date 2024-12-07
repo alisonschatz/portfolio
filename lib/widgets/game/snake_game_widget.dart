@@ -12,7 +12,7 @@ class SnakeGameWidget extends StatefulWidget {
 }
 
 class _SnakeGameWidgetState extends State<SnakeGameWidget> {
-  static const int rows = 20;
+  static const int rows = 25;
   static const int columns = 20;
   static const double cellSize = 15;
   static const double gameWidth = columns * cellSize;
