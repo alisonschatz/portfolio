@@ -17,6 +17,7 @@ class _SnakeGameWidgetState extends State<SnakeGameWidget> {
   static const double cellSize = 15;
   static const double gameWidth = columns * cellSize;
   static const double gameHeight = rows * cellSize;
+  static const double minTotalWidth = 500;
 
   List<Point<int>> snake = [const Point(10, 10)];
   Point<int> food = const Point(5, 5);
@@ -177,258 +178,259 @@ class _SnakeGameWidgetState extends State<SnakeGameWidget> {
   }
 
   Widget _buildControlButton(IconData icon, VoidCallback onPressed, double size, double iconSize) {
-    return SizedBox(
+    return Container(
       width: size,
       height: size,
-      child: Container(
-        margin: const EdgeInsets.all(2),
-        decoration: BoxDecoration(
-          color: Colors.black38,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.tealAccent.withOpacity(0.3)),
-        ),
-        child: IconButton(
-          icon: Icon(icon, size: iconSize),
-          onPressed: isPlaying ? onPressed : null,
-          color: Colors.tealAccent,
-          padding: EdgeInsets.zero,
-          constraints: BoxConstraints(
-            minWidth: size,
-            minHeight: size,
+      margin: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: Colors.black38,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.tealAccent.withOpacity(0.3)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.tealAccent.withOpacity(0.1),
+            blurRadius: 4,
+            spreadRadius: 1,
           ),
-        ),
+        ],
+      ),
+      child: IconButton(
+        icon: Icon(icon, size: iconSize),
+        onPressed: isPlaying ? onPressed : null,
+        color: Colors.tealAccent,
+        padding: EdgeInsets.zero,
       ),
     );
   }
 
-  Widget _buildCompactControls() {
-    const double buttonSize = 35;
-    const double iconSize = 20;
+  Widget _buildGameControls() {
+    const double buttonSize = 40;
+    const double iconSize = 24;
     
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _buildControlButton(Icons.arrow_upward, () {
-          if (direction != Direction.down) direction = Direction.up;
-        }, buttonSize, iconSize),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _buildControlButton(Icons.arrow_back, () {
-              if (direction != Direction.right) direction = Direction.left;
-            }, buttonSize, iconSize),
-            SizedBox(width: buttonSize),
-            _buildControlButton(Icons.arrow_forward, () {
-              if (direction != Direction.left) direction = Direction.right;
-            }, buttonSize, iconSize),
-          ],
-        ),
-        _buildControlButton(Icons.arrow_downward, () {
-          if (direction != Direction.up) direction = Direction.down;
-        }, buttonSize, iconSize),
-      ],
+    return Container(
+      padding: const EdgeInsets.all(15),
+      decoration: BoxDecoration(
+        color: Colors.black26,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.tealAccent.withOpacity(0.3)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text(
+            '// controls',
+            style: TextStyle(color: Colors.grey, fontSize: 12),
+          ),
+          const SizedBox(height: 15),
+          _buildControlButton(Icons.arrow_upward, () {
+            if (direction != Direction.down) direction = Direction.up;
+          }, buttonSize, iconSize),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _buildControlButton(Icons.arrow_back, () {
+                if (direction != Direction.right) direction = Direction.left;
+              }, buttonSize, iconSize),
+              SizedBox(width: buttonSize * 0.5),
+              _buildControlButton(Icons.arrow_forward, () {
+                if (direction != Direction.left) direction = Direction.right;
+              }, buttonSize, iconSize),
+            ],
+          ),
+          _buildControlButton(Icons.arrow_downward, () {
+            if (direction != Direction.up) direction = Direction.down;
+          }, buttonSize, iconSize),
+          const SizedBox(height: 20),
+          const Text(
+            '// progress',
+            style: TextStyle(color: Colors.grey, fontSize: 12),
+          ),
+          const SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(
+              10,
+              (index) => Container(
+                width: 8,
+                height: 8,
+                margin: const EdgeInsets.all(2),
+                decoration: BoxDecoration(
+                  color: index < foodCollected 
+                    ? Colors.tealAccent 
+                    : Colors.teal.withOpacity(0.2),
+                  shape: BoxShape.circle,
+                  boxShadow: index < foodCollected ? [
+                    BoxShadow(
+                      color: Colors.tealAccent.withOpacity(0.3),
+                      blurRadius: 4,
+                      spreadRadius: 1,
+                    ),
+                  ] : null,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+          SizedBox(
+            width: buttonSize * 2,
+            child: ElevatedButton(
+              onPressed: isPlaying ? null : _startGame,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.tealAccent,
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                disabledBackgroundColor: Colors.tealAccent.withOpacity(0.3),
+              ),
+              child: Text(
+                isPlaying ? 'playing...' : 'start-game',
+                style: TextStyle(
+                  color: isPlaying ? Colors.white54 : Colors.black87,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final totalWidth = gameWidth + 60;
-
     return RawKeyboardListener(
       focusNode: _focusNode,
       onKey: _handleKeyEvent,
-      child: SizedBox(
-        width: totalWidth,
-        child: Column(
+      child: Container(
+        constraints: const BoxConstraints(
+          minWidth: minTotalWidth,
+        ),
+        child: Row(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Score Display
-            Container(
-              width: gameWidth,
-              margin: const EdgeInsets.only(bottom: 10),
-              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-              decoration: BoxDecoration(
-                color: Colors.black26,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: Colors.tealAccent.withOpacity(0.3)),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.star, color: Colors.amber.withOpacity(0.7), size: 20),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Score: $foodCollected',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+            // Game Area
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Score Display
+                Container(
+                  width: gameWidth,
+                  margin: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.black26,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colors.tealAccent.withOpacity(0.3)),
                   ),
-                ],
-              ),
-            ),
-            // Game Board
-            Container(
-              width: gameWidth,
-              height: gameHeight,
-              decoration: BoxDecoration(
-                color: Colors.black87,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: Colors.tealAccent.withOpacity(0.5)),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.tealAccent.withOpacity(0.2),
-                    blurRadius: 10,
-                    spreadRadius: 2,
-                  ),
-                ],
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: Stack(
-                  children: [
-                    // Grid lines
-                    ...List.generate(rows + 1, (index) => Positioned(
-                      left: 0,
-                      top: index * cellSize,
-                      child: Container(
-                        width: columns * cellSize,
-                        height: 0.5,
-                        color: Colors.teal.withOpacity(0.1),
-                      ),
-                    )),
-                    ...List.generate(columns + 1, (index) => Positioned(
-                      left: index * cellSize,
-                      top: 0,
-                      child: Container(
-                        width: 0.5,
-                        height: rows * cellSize,
-                        color: Colors.teal.withOpacity(0.1),
-                      ),
-                    )),
-                    // Food with glow effect
-                    Positioned(
-                      left: food.x * cellSize,
-                      top: food.y * cellSize,
-                      child: Container(
-                        width: cellSize,
-                        height: cellSize,
-                        decoration: BoxDecoration(
-                          color: Colors.tealAccent,
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.tealAccent.withOpacity(0.5),
-                              blurRadius: 10,
-                              spreadRadius: 2,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    // Snake with gradient effect
-                    ...snake.map((point) => Positioned(
-                      left: point.x * cellSize,
-                      top: point.y * cellSize,
-                      child: Container(
-                        width: cellSize,
-                        height: cellSize,
-                        decoration: BoxDecoration(
-                          color: point == snake.first 
-                            ? Colors.tealAccent 
-                            : Colors.teal.withOpacity(0.8),
-                          borderRadius: BorderRadius.circular(4),
-                          boxShadow: point == snake.first ? [
-                            BoxShadow(
-                              color: Colors.tealAccent.withOpacity(0.3),
-                              blurRadius: 5,
-                              spreadRadius: 1,
-                            ),
-                          ] : null,
-                        ),
-                      ),
-                    )),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 15),
-            // Controls Section
-            Container(
-              width: gameWidth,
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: Colors.black26,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: Colors.tealAccent.withOpacity(0.3)),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text(
-                    '// use keyboard or buttons',
-                    style: TextStyle(color: Colors.grey, fontSize: 12),
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      _buildCompactControls(),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(
-                      10,
-                      (index) => Container(
-                        width: 8,
-                        height: 8,
-                        margin: const EdgeInsets.all(2),
-                        decoration: BoxDecoration(
-                          color: index < foodCollected 
-                            ? Colors.tealAccent 
-                            : Colors.teal.withOpacity(0.2),
-                          shape: BoxShape.circle,
-                          boxShadow: index < foodCollected ? [
-                            BoxShadow(
-                              color: Colors.tealAccent.withOpacity(0.3),
-                              blurRadius: 4,
-                              spreadRadius: 1,
-                            ),
-                          ] : null,
+                      Icon(Icons.star, color: Colors.amber.withOpacity(0.7), size: 20),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Score: $foodCollected',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
+                    ],
+                  ),
+                ),
+                // Game Board
+                Container(
+                  width: gameWidth,
+                  height: gameHeight,
+                  decoration: BoxDecoration(
+                    color: Colors.black87,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colors.tealAccent.withOpacity(0.5)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.tealAccent.withOpacity(0.2),
+                        blurRadius: 10,
+                        spreadRadius: 2,
+                      ),
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Stack(
+                      children: [
+                        // Grid lines
+                        ...List.generate(rows + 1, (index) => Positioned(
+                          left: 0,
+                          top: index * cellSize,
+                          child: Container(
+                            width: columns * cellSize,
+                            height: 0.5,
+                            color: Colors.teal.withOpacity(0.1),
+                          ),
+                        )),
+                        ...List.generate(columns + 1, (index) => Positioned(
+                          left: index * cellSize,
+                          top: 0,
+                          child: Container(
+                            width: 0.5,
+                            height: rows * cellSize,
+                            color: Colors.teal.withOpacity(0.1),
+                          ),
+                        )),
+                        // Food with glow effect
+                        Positioned(
+                          left: food.x * cellSize,
+                          top: food.y * cellSize,
+                          child: Container(
+                            width: cellSize,
+                            height: cellSize,
+                            decoration: BoxDecoration(
+                              color: Colors.tealAccent,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.tealAccent.withOpacity(0.5),
+                                  blurRadius: 10,
+                                  spreadRadius: 2,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        // Snake with gradient effect
+                        ...snake.map((point) => Positioned(
+                          left: point.x * cellSize,
+                          top: point.y * cellSize,
+                          child: Container(
+                            width: cellSize,
+                            height: cellSize,
+                            decoration: BoxDecoration(
+                              color: point == snake.first 
+                                ? Colors.tealAccent 
+                                : Colors.teal.withOpacity(0.8),
+                              borderRadius: BorderRadius.circular(4),
+                              boxShadow: point == snake.first ? [
+                                BoxShadow(
+                                  color: Colors.tealAccent.withOpacity(0.3),
+                                  blurRadius: 5,
+                                  spreadRadius: 1,
+                                ),
+                              ] : null,
+                            ),
+                          ),
+                        )),
+                      ],
                     ),
                   ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 10),
-            // Start Button
-            SizedBox(
-              width: 120,
-              child: ElevatedButton(
-                onPressed: isPlaying ? null : _startGame,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.tealAccent,
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  disabledBackgroundColor: Colors.tealAccent.withOpacity(0.3),
                 ),
-                child: Text(
-                  isPlaying ? 'playing...' : 'start-game',
-                  style: TextStyle(
-                    color: isPlaying ? Colors.white54 : Colors.black87,
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
+              ],
             ),
+            // Controls Area
+            const SizedBox(width: 20),
+            _buildGameControls(),
           ],
         ),
       ),

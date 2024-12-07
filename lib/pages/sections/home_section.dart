@@ -1,86 +1,160 @@
 // lib/pages/sections/home_section.dart
 import 'package:flutter/material.dart';
 import '../../widgets/game/snake_game_widget.dart';
+import '../../widgets/animated_text.dart';
 
-class HomeSection extends StatelessWidget {
+class HomeSection extends StatefulWidget {
   const HomeSection({super.key});
 
   @override
+  State<HomeSection> createState() => _HomeSectionState();
+}
+
+class _HomeSectionState extends State<HomeSection> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _fadeIn;
+  late Animation<Offset> _slideIn;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(seconds: 2),
+      vsync: this,
+    );
+
+    _fadeIn = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _controller,
+      curve: const Interval(0.0, 0.5, curve: Curves.easeOut),
+    ));
+
+    _slideIn = Tween<Offset>(
+      begin: const Offset(-0.5, 0.0),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _controller,
+      curve: const Interval(0.0, 0.5, curve: Curves.easeOut),
+    ));
+
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        const SizedBox(width: 100),
-        Expanded(
-          flex: 4,
-          child: Padding(
-            padding: const EdgeInsets.all(40.0),
-            child: _buildIntroduction(),
-          ),
-        ),
-        Expanded(
-          flex: 3,
-          child: Container(
-            margin: const EdgeInsets.all(40),
-            decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.3),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: Colors.teal.withOpacity(0.3),
-                width: 1,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final bool isWideScreen = constraints.maxWidth > 1200;
+
+        if (isWideScreen) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  width: 500,
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: _buildAnimatedIntroduction(),
+                ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20.0),
+                  child: SnakeGameWidget(),
+                ),
+              ],
+            ),
+          );
+        } else {
+          return SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 40.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 40),
+                  _buildAnimatedIntroduction(),
+                  const SizedBox(height: 40),
+                  const Center(child: SnakeGameWidget()),
+                  const SizedBox(height: 40),
+                ],
               ),
             ),
-            child: const SnakeGameWidget(),
-          ),
-        ),
-        const SizedBox(width: 100),
-      ],
+          );
+        }
+      },
     );
   }
 
-  Widget _buildIntroduction() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Text(
-          'Hi all. I am',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 24,
-          ),
+  Widget _buildAnimatedIntroduction() {
+    return SlideTransition(
+      position: _slideIn,
+      child: FadeTransition(
+        opacity: _fadeIn,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const TypewriterText(
+              text: 'Hi all. I am',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 24,
+              ),
+              delay: Duration(milliseconds: 500),
+            ),
+            ShaderMask(
+              shaderCallback: (bounds) => const LinearGradient(
+                colors: [Colors.white, Colors.tealAccent],
+              ).createShader(bounds),
+              child: const TypewriterText(
+                text: 'Alison Schatz',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 48,
+                  fontWeight: FontWeight.bold,
+                ),
+                delay: Duration(milliseconds: 1000),
+                speed: Duration(milliseconds: 100),
+              ),
+            ),
+            const TypewriterText(
+              text: '> Front-end developer',
+              style: TextStyle(
+                color: Colors.blue,
+                fontSize: 32,
+              ),
+              delay: Duration(milliseconds: 2000),
+            ),
+            const SizedBox(height: 20),
+            TypewriterText(
+              text: '// complete the game to continue\n'
+                  '// you can also see it on my Github page',
+              style: TextStyle(
+                color: Colors.grey[600],
+                fontSize: 16,
+              ),
+              delay: const Duration(milliseconds: 3000),
+            ),
+            const TypewriterText(
+              text: 'const githubLink = "https://github.com/alisonschatz"',
+              style: TextStyle(
+                color: Colors.teal,
+                fontSize: 16,
+              ),
+              delay: Duration(milliseconds: 4000),
+            ),
+          ],
         ),
-        const Text(
-          'Alison Schatz',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 48,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const Text(
-          '> Front-end developer',
-          style: TextStyle(
-            color: Colors.blue,
-            fontSize: 32,
-          ),
-        ),
-        const SizedBox(height: 20),
-        Text(
-          '// complete the game to continue\n'
-          '// you can also see it on my Github page',
-          style: TextStyle(
-            color: Colors.grey[600],
-            fontSize: 16,
-          ),
-        ),
-        const Text(
-          'const githubLink = "https://github.com/alisonschatz"',
-          style: TextStyle(
-            color: Colors.teal,
-            fontSize: 16,
-          ),
-        ),
-      ],
+      ),
     );
   }
 }

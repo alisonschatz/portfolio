@@ -1,15 +1,23 @@
-// lib/widgets/footer.dart
+// lib/widgets/styled_app_bar.dart
 import 'package:flutter/material.dart';
 
-class Footer extends StatelessWidget {
-  const Footer({super.key});
+class StyledAppBar extends StatelessWidget {
+  const StyledAppBar({
+    super.key,
+    required this.currentPage,
+    required this.onPageChange,
+  });
+
+  final String currentPage;
+  final Function(String) onPageChange;
 
   @override
   Widget build(BuildContext context) {
     return Container(
+      margin: const EdgeInsets.only(top: 5),
       decoration: BoxDecoration(
         border: Border(
-          top: BorderSide(
+          bottom: BorderSide(
             color: Colors.tealAccent.withOpacity(0.3),
             width: 1,
           ),
@@ -28,35 +36,19 @@ class Footer extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 15),
             child: Row(
               children: [
-                // Find me in text
                 const Text(
-                  'find me in:',
+                  'alison-schatz',
                   style: TextStyle(
                     color: Colors.grey,
-                    fontSize: 14,
+                    fontSize: 16,
                     fontFamily: 'monospace',
                   ),
                 ),
-                const SizedBox(width: 20),
-                // Social buttons
-                _buildSocialButton(Icons.access_time),
-                _buildSocialButton(Icons.facebook),
                 const Spacer(),
-                // Username and GitHub
-                Row(
-                  children: [
-                    const Text(
-                      '@alisonschatz',
-                      style: TextStyle(
-                        color: Colors.grey,
-                        fontSize: 14,
-                        fontFamily: 'monospace',
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    _buildSocialButton(Icons.circle),
-                  ],
-                ),
+                _buildNavButton('_hello', currentPage == '_hello', onPageChange),
+                _buildNavButton('_about-me', currentPage == '_about-me', onPageChange),
+                _buildNavButton('_projects', currentPage == '_projects', onPageChange),
+                _buildNavButton('_contact-me', currentPage == '_contact-me', onPageChange),
               ],
             ),
           ),
@@ -65,16 +57,30 @@ class Footer extends StatelessWidget {
     );
   }
 
-  Widget _buildSocialButton(IconData icon) {
+  Widget _buildNavButton(String text, bool isSelected, Function(String) onTap) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 5),
-      child: IconButton(
-        icon: Icon(icon),
-        onPressed: () {},
-        color: Colors.grey,
-        hoverColor: Colors.tealAccent.withOpacity(0.1),
-        style: IconButton.styleFrom(
-          padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            color: isSelected ? Colors.tealAccent : Colors.transparent,
+            width: 2,
+          ),
+        ),
+      ),
+      child: TextButton(
+        onPressed: () => onTap(text),
+        style: TextButton.styleFrom(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          backgroundColor: isSelected ? Colors.black12 : Colors.transparent,
+        ),
+        child: Text(
+          text,
+          style: TextStyle(
+            color: isSelected ? Colors.white : Colors.grey,
+            fontSize: 14,
+            fontFamily: 'monospace',
+          ),
         ),
       ),
     );

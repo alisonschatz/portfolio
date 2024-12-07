@@ -12,7 +12,7 @@ class PortfolioApp extends StatelessWidget {
       theme: ThemeData(
         brightness: Brightness.dark,
         primaryColor: Colors.teal,
-        scaffoldBackgroundColor: const Color(0xFF001524), // Cor de fundo escura com tom azulado
+        scaffoldBackgroundColor: const Color(0xFF001524),
       ),
       home: const PortfolioPage(),
     );
