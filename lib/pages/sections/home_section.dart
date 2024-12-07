@@ -1,5 +1,6 @@
 // lib/pages/sections/home_section.dart
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../widgets/game/snake_game_widget.dart';
 import '../../widgets/animated_text.dart';
 
@@ -54,42 +55,57 @@ class _HomeSectionState extends State<HomeSection> with SingleTickerProviderStat
       builder: (context, constraints) {
         final bool isWideScreen = constraints.maxWidth > 1200;
 
-        if (isWideScreen) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Container(
-                  width: 500,
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                  child: _buildAnimatedIntroduction(),
+        return Stack(
+          children: [
+            // Background Blur Image
+            Positioned.fill(
+              child: Center(
+                child: IgnorePointer(
+                  child: Image.asset(
+                    'assets/img/bg_blur.png',
+                    fit: BoxFit.contain,
+                  ),
                 ),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20.0),
-                  child: SnakeGameWidget(),
-                ),
-              ],
-            ),
-          );
-        } else {
-          return SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 40.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const SizedBox(height: 40),
-                  _buildAnimatedIntroduction(),
-                  const SizedBox(height: 40),
-                  const Center(child: SnakeGameWidget()),
-                  const SizedBox(height: 40),
-                ],
               ),
             ),
-          );
-        }
+            // Content
+            if (isWideScreen)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 40.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: 500,
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      child: _buildAnimatedIntroduction(),
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 20.0),
+                      child: SnakeGameWidget(),
+                    ),
+                  ],
+                ),
+              )
+            else
+              SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 40.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 40),
+                      _buildAnimatedIntroduction(),
+                      const SizedBox(height: 40),
+                      const Center(child: SnakeGameWidget()),
+                      const SizedBox(height: 40),
+                    ],
+                  ),
+                ),
+              ),
+          ],
+        );
       },
     );
   }
@@ -144,13 +160,17 @@ class _HomeSectionState extends State<HomeSection> with SingleTickerProviderStat
               ),
               delay: const Duration(milliseconds: 3000),
             ),
-            const TypewriterText(
-              text: 'const githubLink = "https://github.com/alisonschatz"',
-              style: TextStyle(
-                color: Colors.teal,
-                fontSize: 16,
+            InkWell(
+              onTap: () => launchUrl(Uri.parse('https://github.com/alisonschatz')),
+              child: const TypewriterText(
+                text: 'const githubLink = "https://github.com/alisonschatz"',
+                style: TextStyle(
+                  color: Colors.teal,
+                  fontSize: 16,
+                  // decoration: TextDecoration.underline,
+                ),
+                delay: Duration(milliseconds: 4000),
               ),
-              delay: Duration(milliseconds: 4000),
             ),
           ],
         ),
