@@ -24,7 +24,7 @@ Este portfólio é uma aplicação moderna e responsiva que visa destacar meu tr
 O design foi inspirado no template [Portfolio for Developers Concept V 2](https://www.figma.com/community/file/1100794861710979147/portfolio-for-developers-concept-v-2) do Figma, com ajustes para refletir meu estilo pessoal e minhas necessidades como desenvolvedor.
 
 
-### 🌐 Deploy
+## 🌐 Deploy
 
 O portfólio pode ser acessado online em:  
 [https://portfolio-alison-schatz.vercel.app](https://portfolio-alison-schatz.vercel.app)
@@ -37,13 +37,11 @@ Desenvolver este portfólio me permitiu aprimorar habilidades como:
 - Organização e modularização de projetos em Flutter.
 - Integração com Firebase.
 
----
 
 # 🤝 Contribuições
 
 Sugestões e melhorias são sempre bem-vindas! Entre em contato ou abra uma issue neste repositório.
 
----
 
 # 📬 Contato
 
